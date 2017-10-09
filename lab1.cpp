@@ -12,8 +12,23 @@
 #include "catch.hpp"
 
 #include <string>
+#include <exception>
 
 using namespace std;
+
+// Custom Exceptions
+struct Float_exception : public exception {
+  const char * what () const throw () {
+    return "a = 0 causes Floating point exception";
+  }
+};
+
+struct Imaginary_exception : public exception {
+  const char * what () const throw () {
+    return "The values of a, b and c cause an imaginary number";
+  }
+};
+
 
 // Factorial
 unsigned int factorial( unsigned int number ) {
@@ -21,11 +36,39 @@ unsigned int factorial( unsigned int number ) {
 }
 
 // Quadratic equation.
-double quadratic(int a, int b, int c);
+double quadratic(int a, int b, int c) {
+
+  if(a == 0) {
+    throw Float_exception();
+  }
+
+  double rad = (b*b) - (4 * a * c);
+  if(rad < 0) {
+    throw Imaginary_exception();
+  }
+
+  return ((- b) + sqrt(rad))/ (2 * a);
+};
 
 
 // Greatest Common Divisor (GCD).
-double gcd(int number1, int number2);
+double gcd(int number1, int number2){
+  if(number1 == 0 || number2 == 0)
+    return 0;
+
+  number1 = (number1 > 0) ? number1 : -number1;
+  number2 = (number1 > 0) ? number2 : -number2;
+
+  while(number1!=number2) {
+
+    if(number1 > number2)
+      number1 -= number2;
+    else
+      number2 -= number1;
+  }
+
+  return number1;
+};
 
 
 // Babylonian Algorithm for square root.
@@ -47,6 +90,7 @@ string dayOfTheWeek(int month, int day, int year);
 void parseStudentName(const string studentName, string& firstName, string& lastName, string& username);
 
 
+
 // Tests...
 TEST_CASE( "Factorials are computed", "[factorial]" ) {
     REQUIRE( factorial(1) == 1 );
@@ -55,3 +99,22 @@ TEST_CASE( "Factorials are computed", "[factorial]" ) {
     REQUIRE( factorial(10) == 3628800 );
 }
 
+TEST_CASE( "Should compute quadratic", "[quadratic]" ) {
+  REQUIRE( quadratic(2, 4, 2) == -1.0);
+}
+
+TEST_CASE( "When a is zero should throw floating point exception", "[quadratic]") {
+  REQUIRE_THROWS_AS( quadratic(0, 20, -10), Float_exception e);
+}
+
+TEST_CASE( "If a, b, and c are specific values that create imaginary number throw imaginary_exception", "[quadratic]") {
+  REQUIRE_THROWS_AS( quadratic(-1, -1, -1), Imaginary_exception e);
+}
+
+TEST_CASE( "If a or b is 0 return 0", "[gcd]") {
+  REQUIRE( gcd(0, 20) == 0);
+}
+
+TEST_CASE( "It should compute the greatest common deviser") {
+  REQUIRE( gcd(10, 25) == 5);
+}
