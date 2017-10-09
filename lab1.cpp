@@ -25,7 +25,7 @@ struct Float_exception : public exception {
 
 struct Imaginary_exception : public exception {
   const char * what () const throw () {
-    return "The values of a, b and c cause an imaginary number";
+    return "Square root evaluated to an imaginary number";
   }
 };
 
@@ -73,7 +73,27 @@ double gcd(int number1, int number2){
 
 // Babylonian Algorithm for square root.
 // Absolute C++ Ch3 PP14
-double squareRoot(double value);
+double squareRoot(double value){
+  if(value == 0){
+    return 0;
+  } else if(value < 0) {
+    throw Imaginary_exception();
+  }
+
+  double guess = value / 2;
+  double prev_guess;
+  double r;
+
+  do {
+
+    r = value / guess;
+    prev_guess = guess;
+    guess = (guess + r) /2;
+
+  }while((abs(guess - prev_guess) / 2) > 0.000000001);
+
+  return r;
+};
 
 
 // Calculate what day of the week corresponds to the date.
@@ -115,6 +135,18 @@ TEST_CASE( "If a or b is 0 return 0", "[gcd]") {
   REQUIRE( gcd(0, 20) == 0);
 }
 
-TEST_CASE( "It should compute the greatest common deviser") {
+TEST_CASE( "It should compute the greatest common deviser", "[gcd]") {
   REQUIRE( gcd(10, 25) == 5);
+}
+
+TEST_CASE( "Should throw imaginary exception when given a negative number", "[squareRoot]") {
+  REQUIRE_THROWS_AS( squareRoot(-4.00), Imaginary_exception e);
+}
+
+TEST_CASE( "Should return zero if given zero", "[squareRoot]") {
+  REQUIRE( squareRoot(0.00) == 0.00);
+}
+
+TEST_CASE( "Should calculate square root of a positive double", "[squareRoot]") {
+  REQUIRE( squareRoot(5) == Approx(2.2361));
 }
