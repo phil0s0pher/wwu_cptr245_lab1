@@ -1,0 +1,10 @@
+parseStudentName
+
+test: "lead, a"
+test: "Waller, Jeff"
+test: "Handy, Man, J"
+
+Quadratic
+
+test: a: -1, b:-1, c:-1
+test: a: 0, b: 20, c: -10
