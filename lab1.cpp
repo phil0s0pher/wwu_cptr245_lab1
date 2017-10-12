@@ -12,7 +12,10 @@
 #include "catch.hpp"
 
 #include <string>
+#include <string.h>
+#include <cstring>
 #include <exception>
+#include <locale>
 
 using namespace std;
 
@@ -210,10 +213,76 @@ string dayOfTheWeek(int month, int day, int year) {
 //  - If last name < 4, fill characters from first name.
 //  - First 2 characters of First Name
 //  - If first name < 2, fill characters from last name.
-void parseStudentName(const string studentName, string& firstName, string& lastName, string& username) {
-  firstName = "hello";
-  cout << firstName;
 
+void trim(char* stuName)
+{
+    char* temp = stuName;
+    do {
+      if(*temp !=' '){
+        *stuName++ = *temp;
+        }
+        cout << *temp;
+        } while (*temp++);
+}
+
+void parseStudentName(const string studentName, string& firstName, string& lastName, string& username) {
+
+  string parsedUnameArray[2];
+
+  // Copy studentName to editable basic string
+  char * cstr = new char [studentName.length()+1];
+  strcpy (cstr, studentName.c_str());
+
+  // Remove spaces if present
+  trim(cstr);
+
+  // Force the string to be all lowercase
+  locale loc;
+  for (string::size_type i = 0; i < studentName.length(); ++i)
+    cstr[i] = tolower(studentName[i], loc);
+
+  // Spilt string into tokens
+  char *pch;
+  pch = strtok (cstr, ",");
+  for (int i; i < 2; i++) {
+
+    if (pch != NULL)
+    {
+        parsedUnameArray[i] = pch;
+        pch = strtok (NULL, ",");
+    }
+    else
+    {
+
+        delete[] cstr;
+        throw Empty_String_exception();
+    }
+  }
+
+  if ((parsedUnameArray[0].length() + parsedUnameArray[1].length()) < 6)
+  {
+    username = parsedUnameArray[0] + parsedUnameArray[1];
+  }
+
+  else if (parsedUnameArray[0].length() < 4)
+  {
+    int padding = 4 - parsedUnameArray[1].length();
+    username = parsedUnameArray[0] + parsedUnameArray[1].substr(0, 2 + padding);
+  }
+
+  else if (parsedUnameArray[1].length() < 2)
+  {
+    username = parsedUnameArray[0].substr(0, 5) + parsedUnameArray[1];
+  }
+
+  else
+  {
+    username = parsedUnameArray[1].substr(0, 4) + parsedUnameArray[1].substr(0, 2);
+  }
+
+
+
+    delete[] cstr;
 };
 
 
@@ -304,6 +373,16 @@ TEST_CASE( "It should return an OutOfRange_exception if the day does not exist i
   REQUIRE_THROWS_AS( dayOfTheWeek(10, 32, 2017), OutOfRange_exception e);
 }
 
+
+TEST_CASE( "Test for Trim() function. It should remove all spaces and reconcatonate the strings.") {
+  char* str = (char *) malloc(strlen("Noris, chu ck")+1);
+  strcpy(str, "Noris, chu ck");
+  char* res = (char *) malloc(strlen("Noris, chu ck")+1);
+  strcpy(res, "Noris,chuck");
+  trim(str);
+  REQUIRE( str == res);
+}
+
 TEST_CASE( "It should throw Empty_String_exception if lastname is less than 1", "[parseStudentName]") {
   const string studentName = "Smith, ";
   string firstName;
@@ -340,5 +419,19 @@ TEST_CASE( "It should pad out the username if the first name is less than 2 char
 }
 
 TEST_CASE( "It should produce a username that is less than 6 characters if both last and first name together are less than 6 characters", "[parseStudentName]") {
-  
+  const string studentName = "Qin, M";
+  string firstName;
+  string lastName;
+  string username;
+  parseStudentName(studentName, firstName, lastName, username);
+  REQUIRE( username ==  "qinm");
+}
+
+TEST_CASE( "It should produce a username that is less than 6 characters if the last name is 1 character and the firstname is < 5", "[parseStudentName]") {
+  const string studentName = "A, Thomas";
+  string firstName;
+  string lastName;
+  string username;
+  parseStudentName(studentName, firstName, lastName, username);
+  REQUIRE( username ==  "athoma");
 }
