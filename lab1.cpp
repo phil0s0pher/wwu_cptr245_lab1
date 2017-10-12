@@ -35,6 +35,11 @@ struct OutOfRange_exception : public exception {
   }
 };
 
+struct Empty_String_exception : public exception {
+  const char * what () const throw () {
+    return "One of the input strings is empty";
+  }
+};
 
 // Factorial
 unsigned int factorial( unsigned int number ) {
@@ -205,7 +210,11 @@ string dayOfTheWeek(int month, int day, int year) {
 //  - If last name < 4, fill characters from first name.
 //  - First 2 characters of First Name
 //  - If first name < 2, fill characters from last name.
-void parseStudentName(const string studentName, string& firstName, string& lastName, string& username);
+void parseStudentName(const string studentName, string& firstName, string& lastName, string& username) {
+  firstName = "hello";
+  cout << firstName;
+
+};
 
 
 
@@ -270,6 +279,7 @@ TEST_CASE( "Should check if the day is allowed in that month", "[dayOfTheWeek]")
   REQUIRE( dayAllowed(29, 2, true));
   REQUIRE( dayAllowed(28, 2, false));
 }
+
 TEST_CASE( "It should return OutOfRange_exception if year is less than 1", "[dayOfTheWeek]") {
   REQUIRE_THROWS_AS(dayOfTheWeek(12, 5, -1000), OutOfRange_exception e);
 }
@@ -285,9 +295,50 @@ TEST_CASE( "It should return OutOfRange_exception if day is less than 1", "[dayO
 TEST_CASE( "It should return an OutOfRange_exception if month is greater than 12", "[dayOfTheWeek]") {
   REQUIRE_THROWS_AS( dayOfTheWeek(13, 1, 2008), OutOfRange_exception e);
 }
+
 TEST_CASE( "It should calculate the day of the week given the day, month and year", "[dayOfTheWeek]") {
   REQUIRE( dayOfTheWeek(10, 9, 2017) == "Monday");
 }
+
 TEST_CASE( "It should return an OutOfRange_exception if the day does not exist in that month", "[dayOfTheWeek]") {
   REQUIRE_THROWS_AS( dayOfTheWeek(10, 32, 2017), OutOfRange_exception e);
+}
+
+TEST_CASE( "It should throw Empty_String_exception if lastname is less than 1", "[parseStudentName]") {
+  const string studentName = "Smith, ";
+  string firstName;
+  string lastName;
+  string username;
+  REQUIRE_THROWS_AS( parseStudentName(studentName, firstName, lastName, username), Empty_String_exception e);
+}
+
+TEST_CASE( "It should parse the students username", "[parseStudentName]") {
+  const string studentName = "Babylonian, Mike, Tj";
+  string firstName;
+  string lastName;
+  string username;
+  parseStudentName(studentName, firstName, lastName, username);
+  REQUIRE( username ==  "babymi");
+}
+
+TEST_CASE( "It should pad out the username if the last name is less than 4 characters", "[parseStudentName]") {
+  const string studentName = "Woo, John";
+  string firstName;
+  string lastName;
+  string username;
+  parseStudentName(studentName, firstName, lastName, username);
+  REQUIRE( username ==  "woojoh");
+}
+
+TEST_CASE( "It should pad out the username if the first name is less than 2 characters", "[parseStudentName]") {
+  const string studentName = "Smith, C";
+  string firstName;
+  string lastName;
+  string username;
+  parseStudentName(studentName, firstName, lastName, username);
+  REQUIRE( username ==  "smithc");
+}
+
+TEST_CASE( "It should produce a username that is less than 6 characters if both last and first name together are less than 6 characters", "[parseStudentName]") {
+  
 }
