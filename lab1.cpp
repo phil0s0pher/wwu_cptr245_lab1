@@ -1,6 +1,6 @@
 //=======================================================
 // Name: lab1.cpp
-// Author: ?
+// Author: Charles Lamber and Cameron Smith
 // Course: CPTR245
 // Assignment: Lab 1
 // Description: Write the test cases and math expressions.
@@ -22,29 +22,29 @@ using namespace std;
 // Custom Exceptions
 struct Float_exception : public exception {
   const char * what () const throw () {
-    return "a = 0 causes Floating point exception";
+    return "a = 0 causes Floating point exception.";
   }
 };
 
 struct Imaginary_exception : public exception {
   const char * what () const throw () {
-    return "Square root evaluated to an imaginary number";
+    return "Square root evaluated to an imaginary number.";
   }
 };
 
 struct OutOfRange_exception : public exception {
   const char * what () const throw () {
-    return "One of the inputs is out of the acceptable range";
+    return "One of the inputs is out of the acceptable range.";
   }
 };
 
 struct Empty_String_exception : public exception {
   const char * what () const throw () {
-    return "One of the input strings is empty";
+    return "One of the input strings is empty.";
   }
 };
 
-// Factorial
+// Factorial (example)
 unsigned int factorial( unsigned int number ) {
     return number <= 1 ? number : factorial(number - 1) * number;
 }
@@ -52,24 +52,30 @@ unsigned int factorial( unsigned int number ) {
 // Quadratic equation.
 double quadratic(int a, int b, int c) {
 
+  // Throw error if the user tries to divide by zero.
   if(a == 0) {
     throw Float_exception();
   }
 
+  // Throw error if the number under the radical is less than zero.
   double rad = (b*b) - (4 * a * c);
   if(rad < 0) {
     throw Imaginary_exception();
   }
 
+  // Evaluate the quadratic formula.
   return ((- b) + sqrt(rad))/ (2 * a);
 };
 
 
 // Greatest Common Divisor (GCD).
-double gcd(int number1, int number2){
+double gcd(int number1, int number2) {
+
+  // If one number is zero, the GCD = 0.
   if(number1 == 0 || number2 == 0)
     return 0;
 
+  // Evaluate the GCD for two nonzero numbers.
   number1 = (number1 > 0) ? number1 : -number1;
   number2 = (number1 > 0) ? number2 : -number2;
 
@@ -88,12 +94,16 @@ double gcd(int number1, int number2){
 // Babylonian Algorithm for square root.
 // Absolute C++ Ch3 PP14
 double squareRoot(double value){
+
+  // If the value is zero, the square root is zero.
+  // If the value is less than zero, the square root is imaginary, so throw exception.
   if(value == 0){
     return 0;
   } else if(value < 0) {
     throw Imaginary_exception();
   }
 
+  // Implementation of the Babylonian Algorithm after esuring value > 0.
   double guess = value / 2;
   double prev_guess;
   double r;
@@ -109,6 +119,9 @@ double squareRoot(double value){
   return r;
 };
 
+// Set of subfunctions for dayOfTheWeek.
+  // Choose the value that corresponds to the correct month.
+  // If leapYear = true, choose the alternate value for Jan. or Feb.
 int getMonthValue(int month, bool leapYear) {
   int monthIndex[] = {0,3,3,6,1,4,6,2,5,0,3,5};
 
@@ -123,18 +136,23 @@ int getMonthValue(int month, bool leapYear) {
   }
 }
 
+// Determine if the year input is a leap year.
 bool getLeapYear(int year) {
   return (year % 400 == 0 || (year % 4 == 0 && year % 100 > 0));
 }
 
+// Get Century value based on all but the last two digits of the year input.
 int getCenturyValue(int year) {
   return (3 - ((year / 100) % 4)) * 2;
 }
 
+// Get Year value based on the last two digits of the year input.
 int getYearValue(int year) {
   return (year % 100) + ((year % 100) / 4);
 }
 
+// Ensure the date input does not have a high Day value than allowed.
+// (For example: Feb 31 would not be allowed.)
 bool dayAllowed(int day, int month, bool leapYear) {
   if(leapYear && day > 29 && month == 2) {
     return false;
@@ -154,29 +172,33 @@ bool dayAllowed(int day, int month, bool leapYear) {
 // Calculate what day of the week corresponds to the date.
 // Absolute C++ Ch3 PP12
 string dayOfTheWeek(int month, int day, int year) {
+
+  // Check to make sure a legal date has been input.
   if(year < 1 || month < 1 || day < 1 || month > 12  || !dayAllowed(day, month, getLeapYear(year))) {
     throw OutOfRange_exception();
   }
 
+  // Get values from subfunctions.
   bool leapYear = getLeapYear(year);
   int centuryValue = getCenturyValue(year);
   int yearValue = getYearValue(year);
   int monthValue = getMonthValue(month, leapYear);
   string dayIndex[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
+  // Add all values returned plus the number of the day and calculate the day of the week.
   return dayIndex[(day + monthValue + yearValue + centuryValue) % 7];
 };
 
 
-
+// Subfunction for parseStudentName() to remove spaces from the entered string if present.
 string removeSpaces(string str)
 {
   str.erase(remove(str.begin(),str.end(),' '), str.end());
   return str;
 }
 
-// Find the student's Frist and Last Name and calculate the CS username
-// Username criteria
+// Find the student's Frist and Last Name and calculate the CS username.
+// Username criteria:
 //  - First 4 characters of Last Name
 //  - If last name < 4, fill characters from first name.
 //  - First 2 characters of First Name
@@ -188,18 +210,18 @@ void parseStudentName(const string studentName, string& firstName, string& lastN
   stringstream ss;
   string token;
 
-  // Copy studentName to editable basic string
+  // Copy studentName to editable basic string.
   cstr.assign(studentName);
 
-  // Force the string to be all lowercase
+  // Force the string to be all lowercase.
   locale loc;
   for (string::size_type i = 0; i < cstr.length(); ++i)
     cstr[i] = tolower(cstr[i], loc);
 
-  // Remove spaces if present
+  // Remove spaces if present.
   cstr = removeSpaces(cstr);
 
-  // Spilt string into tokens
+  // Spilt string into tokens.
   ss << cstr;
   while(getline(ss, token, ',')){
       parsedUnameVec.push_back(token);
@@ -208,6 +230,9 @@ void parseStudentName(const string studentName, string& firstName, string& lastN
   firstName = parsedUnameVec[1];
   lastName = parsedUnameVec[0];
 
+  // If the string is empty, throw Empty_String_exception.
+  // Otherwise, calculate the appropriate username
+  // based on the available data/length of given names.
   if(parsedUnameVec.size() < 2) {
     throw Empty_String_exception();
   }
@@ -321,10 +346,6 @@ TEST_CASE( "It should return an OutOfRange_exception if the day does not exist i
 
 
 TEST_CASE( "Test for RemoveSpaces() function. It should remove all spaces and reconcatonate the strings.") {
-  // char* str = (char *) malloc(strlen("Noris, chu ck")+1);
-  // strcpy(str, "Noris, chu ck");
-  // char* res = (char *) malloc(strlen("Noris,chuck")+1);
-  // strcpy(res, "Noris,chuck");
   string str = "Norris, chu ck";
   string res = "Norris,chuck";
   REQUIRE(removeSpaces(str) == res);
