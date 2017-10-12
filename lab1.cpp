@@ -197,6 +197,30 @@ string removeSpaces(string str)
   return str;
 }
 
+string stringToLower(string str)
+{
+  locale loc;
+  for (string::size_type i = 0; i < str.length(); ++i)
+    str[i] = tolower(str[i], loc);
+
+  return str;
+}
+
+vector<string> tokenizeString(string str, char delimiter)
+{
+  vector<string> vec;
+  string token;
+  stringstream ss;
+
+  ss << str;
+  while(getline(ss, token, delimiter))
+  {
+    vec.push_back(token);
+  }
+
+  return vec;
+}
+
 // Find the student's Frist and Last Name and calculate the CS username.
 // Username criteria:
 //  - First 4 characters of Last Name
@@ -205,30 +229,20 @@ string removeSpaces(string str)
 //  - If first name < 2, fill characters from last name.
 void parseStudentName(const string studentName, string& firstName, string& lastName, string& username) {
 
-  vector<std::string> parsedUnameVec;
+  vector<string> parsedUnameVec;
   string cstr;
-  stringstream ss;
-  string token;
 
   // Copy studentName to editable basic string.
   cstr.assign(studentName);
 
   // Force the string to be all lowercase.
-  locale loc;
-  for (string::size_type i = 0; i < cstr.length(); ++i)
-    cstr[i] = tolower(cstr[i], loc);
+  cstr = stringToLower(cstr);
 
   // Remove spaces if present.
   cstr = removeSpaces(cstr);
 
   // Spilt string into tokens.
-  ss << cstr;
-  while(getline(ss, token, ',')){
-      parsedUnameVec.push_back(token);
-    }
-
-  firstName = parsedUnameVec[1];
-  lastName = parsedUnameVec[0];
+  parsedUnameVec = tokenizeString(cstr, ',');
 
   // If the string is empty, throw Empty_String_exception.
   // Otherwise, calculate the appropriate username
@@ -236,7 +250,11 @@ void parseStudentName(const string studentName, string& firstName, string& lastN
   if(parsedUnameVec.size() < 2) {
     throw Empty_String_exception();
   }
-  else if((lastName.length() + firstName.length()) < 6)
+
+  firstName = parsedUnameVec[1];
+  lastName = parsedUnameVec[0];
+
+  if((lastName.length() + firstName.length()) < 6)
   {
     username = lastName + firstName;
   }
@@ -305,7 +323,7 @@ TEST_CASE( "Should calculate leapYear", "[dayOfTheWeek]") {
 
 TEST_CASE( "Should calculate CenturyValue", "[dayOfTheWeek]") {
   REQUIRE( getCenturyValue(2016) == 6);
-}
+} 
 
 TEST_CASE( "Should calculate MonthValue", "[dayOfTheWeek]") {
   REQUIRE( getMonthValue(2, true) == 2);
@@ -345,11 +363,25 @@ TEST_CASE( "It should return an OutOfRange_exception if the day does not exist i
 }
 
 
-TEST_CASE( "Test for RemoveSpaces() function. It should remove all spaces and reconcatonate the strings.") {
+TEST_CASE( "Test for RemoveSpaces() function. It should remove all spaces and reconcatonate the strings.", "[parseStudentName]") {
   string str = "Norris, chu ck";
   string res = "Norris,chuck";
   REQUIRE(removeSpaces(str) == res);
 }
+
+TEST_CASE( "Should split the string on a delimiter, and return the parts as a vector", "[parseStudentName]") {
+  string str = "howlett,james";
+  vector<string> res;
+  res.push_back("howlett");
+  res.push_back("james");
+  REQUIRE(tokenizeString(str,',') == res);
+}
+
+TEST_CASE( "Should change all characters to lowercase in string", "[parseStudentName]") {
+  string str = "HeLLo WorLd";
+  REQUIRE(stringToLower(str) == "hello world");
+}
+
 
 TEST_CASE( "It should throw Empty_String_exception if lastname is less than 1", "[parseStudentName]") {
   const string studentName = "Smith, ";
