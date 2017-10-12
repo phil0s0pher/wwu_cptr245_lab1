@@ -22,4 +22,6 @@ did get our implementation running, it was really easy to see if it was running
 correctly. There were a couple times we had to go back and add tests after
 starting the implementation, but I think this necessity will diminish as I
 continue to use tests in future projects. Overall, this project has helped me
-better understand how to use test in a project and why they are so useful.
+better understand how to use tests in a project and why they are so useful. In
+addition, having run the tests, I am much more confident in the accuracy of the
+implementation. 
