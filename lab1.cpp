@@ -110,56 +110,17 @@ double squareRoot(double value){
 };
 
 int getMonthValue(int month, bool leapYear) {
-  switch(month) {
-  case 1:
-    if(leapYear) {
-      return 6;
-        }
-    else {
-      return 0;
-    }
-    break;
-  case 2:
-    if(leapYear){
-      return 2;
-    }
-    else {
-      return 3;
-    }
-    break;
-  case 3:
-    return 3;
-    break;
-  case 4:
-    return 6;
-    break;
-  case 5:
-    return 1;
-    break;
-  case 6:
-    return 4;
-    break;
-  case 7:
-    return 6;
-    break;
-  case 8:
-    return 2;
-    break;
-  case 9:
-    return 5;
-    break;
-  case 10:
-    return 0;
-    break;
-  case 11:
-    return 3;
-    break;
-  case 12:
-    return 5;
-    break;
-  }
+  int monthIndex[] = {0,3,3,6,1,4,6,2,5,0,3,5};
 
-  return 0;
+  if(leapYear && month == 1) {
+    return 6;
+  }
+  else if(leapYear && month == 2) {
+    return 2;
+  }
+  else {
+    return monthIndex[month - 1];
+  }
 }
 
 bool getLeapYear(int year) {
@@ -207,82 +168,67 @@ string dayOfTheWeek(int month, int day, int year) {
 };
 
 
+
+string removeSpaces(string str)
+{
+  str.erase(remove(str.begin(),str.end(),' '), str.end());
+  return str;
+}
+
 // Find the student's Frist and Last Name and calculate the CS username
 // Username criteria
 //  - First 4 characters of Last Name
 //  - If last name < 4, fill characters from first name.
 //  - First 2 characters of First Name
 //  - If first name < 2, fill characters from last name.
-
-void trim(char* stuName)
-{
-    char* temp = stuName;
-    do {
-      if(*temp !=' '){
-        *stuName++ = *temp;
-        }
-        cout << *temp;
-        } while (*temp++);
-}
-
 void parseStudentName(const string studentName, string& firstName, string& lastName, string& username) {
 
-  string parsedUnameArray[2];
+  vector<std::string> parsedUnameVec;
+  string cstr;
+  stringstream ss;
+  string token;
 
   // Copy studentName to editable basic string
-  char * cstr = new char [studentName.length()+1];
-  strcpy (cstr, studentName.c_str());
-
-  // Remove spaces if present
-  trim(cstr);
+  cstr.assign(studentName);
 
   // Force the string to be all lowercase
   locale loc;
-  for (string::size_type i = 0; i < studentName.length(); ++i)
-    cstr[i] = tolower(studentName[i], loc);
+  for (string::size_type i = 0; i < cstr.length(); ++i)
+    cstr[i] = tolower(cstr[i], loc);
+
+  // Remove spaces if present
+  cstr = removeSpaces(cstr);
 
   // Spilt string into tokens
-  char *pch;
-  pch = strtok (cstr, ",");
-  for (int i; i < 2; i++) {
-
-    if (pch != NULL)
-    {
-        parsedUnameArray[i] = pch;
-        pch = strtok (NULL, ",");
+  ss << cstr;
+  while(getline(ss, token, ',')){
+      parsedUnameVec.push_back(token);
     }
-    else
-    {
 
-        delete[] cstr;
-        throw Empty_String_exception();
-    }
+  firstName = parsedUnameVec[1];
+  lastName = parsedUnameVec[0];
+
+  if(parsedUnameVec.size() < 2) {
+    throw Empty_String_exception();
   }
-
-  if ((parsedUnameArray[0].length() + parsedUnameArray[1].length()) < 6)
+  else if((lastName.length() + firstName.length()) < 6)
   {
-    username = parsedUnameArray[0] + parsedUnameArray[1];
+    username = lastName + firstName;
   }
-
-  else if (parsedUnameArray[0].length() < 4)
+  else if (lastName.length() < 4)
   {
-    int padding = 4 - parsedUnameArray[1].length();
-    username = parsedUnameArray[0] + parsedUnameArray[1].substr(0, 2 + padding);
+    int padding = 4 - lastName.length();
+    username = lastName + firstName.substr(0, 2 + padding);
   }
-
-  else if (parsedUnameArray[1].length() < 2)
+  else if (firstName.length() < 2)
   {
-    username = parsedUnameArray[0].substr(0, 5) + parsedUnameArray[1];
+    username = lastName.substr(0, 5) + firstName;
   }
-
   else
   {
-    username = parsedUnameArray[1].substr(0, 4) + parsedUnameArray[1].substr(0, 2);
+    username = lastName.substr(0, 4) + firstName.substr(0, 2);
   }
 
-
-
-    delete[] cstr;
 };
 
 
@@ -374,13 +320,14 @@ TEST_CASE( "It should return an OutOfRange_exception if the day does not exist i
 }
 
 
-TEST_CASE( "Test for Trim() function. It should remove all spaces and reconcatonate the strings.") {
-  char* str = (char *) malloc(strlen("Noris, chu ck")+1);
-  strcpy(str, "Noris, chu ck");
-  char* res = (char *) malloc(strlen("Noris, chu ck")+1);
-  strcpy(res, "Noris,chuck");
-  trim(str);
-  REQUIRE( str == res);
+TEST_CASE( "Test for RemoveSpaces() function. It should remove all spaces and reconcatonate the strings.") {
+  // char* str = (char *) malloc(strlen("Noris, chu ck")+1);
+  // strcpy(str, "Noris, chu ck");
+  // char* res = (char *) malloc(strlen("Noris,chuck")+1);
+  // strcpy(res, "Noris,chuck");
+  string str = "Norris, chu ck";
+  string res = "Norris,chuck";
+  REQUIRE(removeSpaces(str) == res);
 }
 
 TEST_CASE( "It should throw Empty_String_exception if lastname is less than 1", "[parseStudentName]") {
@@ -398,6 +345,8 @@ TEST_CASE( "It should parse the students username", "[parseStudentName]") {
   string username;
   parseStudentName(studentName, firstName, lastName, username);
   REQUIRE( username ==  "babymi");
+  REQUIRE( firstName == "mike");
+  REQUIRE( lastName == "babylonian");
 }
 
 TEST_CASE( "It should pad out the username if the last name is less than 4 characters", "[parseStudentName]") {
