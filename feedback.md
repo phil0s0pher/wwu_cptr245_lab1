@@ -3,6 +3,7 @@
 ### Lab1 CPTR245
 
 
+## Cameron Smith
   This lab was my first experience using Agile development and test cases. It's
 one thing to read about these practices and tactics in a book and another to
 implement them oneself. I believe I now have a better understanding of the
@@ -25,3 +26,10 @@ continue to use tests in future projects. Overall, this project has helped me
 better understand how to use tests in a project and why they are so useful. In
 addition, having run the tests, I am much more confident in the accuracy of the
 implementation. 
+
+
+## Charles Lambert
+  Overall this lab was a good experience. I have worked a little with teams before
+and it is always a bit of a struggle especially with paired programming, but this 
+lab went well. It was good to get more practice with TDD. The practice I think will
+really help me in the future with writing well designed and tested software. This lab was also my first time writing C++ which was difficult but quite rewarding overall. Perhaps the thing I learned most from this lab was how to minimize test cases. I had professors previously tell me to check for corner case and edge cases, but I was never quite sure what they were in the context of my software. I think with the help of this lab and the conversations in lab, I should be able to improve my testing.
